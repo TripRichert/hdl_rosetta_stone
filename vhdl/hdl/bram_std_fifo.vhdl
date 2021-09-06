@@ -1,5 +1,5 @@
---writes are not allowed when empty, even if someone is writing
---reads are not allowed when full, even if someone is reading
+--reads are not allowed when empty, even if there is a simultaneous write
+--writes are not allowed when full, even if there is a simultaneous read
 
 library ieee;
 

@@ -1,3 +1,6 @@
+//reads are not allowed when empty, even if there is a simultaneous write
+//writes are not allowed when full, even if there is a simultaneous read
+
 module bram_std_fifo
 
   #(parameter DATA_WIDTH=32,
