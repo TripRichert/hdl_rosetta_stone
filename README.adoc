@@ -1,0 +1,5 @@
+= hdl_rosetta_stone
+
+I'm planning on putting a few examples in here in vhdl, verilog, and maybe some other languages.
+
+Right now, this is primarily meant to help me remember some of this stuff, so I wouldn't recommend using this repo as a dependency.  If you need something out of here, fork the repo or copy the file and the license.
