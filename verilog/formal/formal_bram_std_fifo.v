@@ -1,5 +1,5 @@
 localparam DATA_WIDTH = 8;
-localparam ADDR_WIDTH = 1;
+localparam ADDR_WIDTH = 3;
 
 module formal_bram_std_fifo
   (
@@ -20,34 +20,34 @@ module formal_bram_std_fifo
    input wr_en;
    input rd_en;
    output [(DATA_WIDTH-1):0] dest_data;
-   output 		     full;
-   output 		     empty;
+   output                    full;
+   output                    empty;
 
 
-   reg 			     clk;
-   reg 			     init_1z;
+   reg                       clk;
+   reg                       init_1z;
    reg                       was_full;
 
    reg [(DATA_WIDTH):0]    data [2**ADDR_WIDTH - 1:0];
    reg [ADDR_WIDTH:0]      index;
-   reg 			     rd_en_1z;
+   reg                       rd_en_1z;
    reg [(DATA_WIDTH-1):0]    data0_1z;
-   reg 			     rst_1z;
+   reg                       rst_1z;
    
    
    
 
    bram_std_fifo #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH))
-		   uut(
-		       .clk(clk),
-		       .rst(rst),
-		       .wr_en(wr_en),
-		       .rd_en(rd_en),
-		       .src_data(src_data),
-		       .dest_data(dest_data),
-		       .full(full),
-		       .empty(empty)
-		       );
+                   uut(
+                       .clk(clk),
+                       .rst(rst),
+                       .wr_en(wr_en),
+                       .rd_en(rd_en),
+                       .src_data(src_data),
+                       .dest_data(dest_data),
+                       .full(full),
+                       .empty(empty)
+                       );
    initial assume(rst);
 
 
@@ -60,14 +60,14 @@ module formal_bram_std_fifo
    
    always @(posedge clk) begin
       if (!init_1z) begin
-	 assume(rst);
+         assume(rst);
       end
       init_1z <= 1'b1;
       rst_1z <= rst;
       rd_en_1z <= rd_en;
       data0_1z <= data[0];
       if (full) begin
-	was_full <= 1'b1;
+        was_full <= 1'b1;
       end
       //make sure we can fill fifo and empty it.
       cover(was_full && empty);
@@ -79,10 +79,9 @@ module formal_bram_std_fifo
       assume((rd_en && !empty) || !rd_en);
       //assume no one is writing or reading when we're reset
       assume((rst && !wr_en && !rd_en) | !rst);
-      //assume no more resets (should make solver go faster).
-      assume(!rst || !init_1z || rst_1z);
-      assert((rst_1z && !rst && empty) || !(rst_1z && !rst));
 
+      //assert that empty after reset
+      assert((rst_1z && !rst && empty) || !(rst_1z && !rst));
       //check to see if fifo is working
       assert(rd_en_1z && data0_1z == dest_data || !rd_en_1z);
 
@@ -96,28 +95,31 @@ module formal_bram_std_fifo
    integer i;
    
    always @(posedge clk) begin
-      if (wr_en && rd_en) begin
-	 for(i = 1; i < 2**ADDR_WIDTH; i=i+1) begin
-	    if (i < index) begin
-	       data[i-1] <= data[i];
-	    end
-	 end
-	 data[index - 1] <= src_data;
-      end else if (wr_en) begin
-	 data[index] <= src_data;
-	 index <= index + 1;
-      end else if (rd_en) begin
-	 for(i = 1; i < 2**ADDR_WIDTH; i=i+1) begin
-	    if (i < index) begin
-	       data[i-1] <= data[i];
-	    end
-	 end
-	 index <= index - 1;
-      end	 
+      if (rst) begin
+         index <= 0;
+      end else begin
+         if (wr_en && rd_en) begin
+            for(i = 1; i < 2**ADDR_WIDTH; i=i+1) begin
+               if (i < index) begin
+                  data[i-1] <= data[i];
+               end
+            end
+            data[index - 1] <= src_data;
+         end else if (wr_en) begin
+            data[index] <= src_data;
+            index <= index + 1;
+         end else if (rd_en) begin
+            for(i = 1; i < 2**ADDR_WIDTH; i=i+1) begin
+               if (i < index) begin
+                  data[i-1] <= data[i];
+               end
+            end
+            index <= index - 1;
+         end
+      end
       assert(index >= 0);
       assert(index <= 2**ADDR_WIDTH);
    end
-   
    
    initial begin
      clk = 0;
@@ -125,6 +127,5 @@ module formal_bram_std_fifo
   
    always
      #5 clk = !clk;
-
    
 endmodule

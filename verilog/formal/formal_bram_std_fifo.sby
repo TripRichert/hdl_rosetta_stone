@@ -2,7 +2,7 @@
 mode prove
 
 [engines]
-smtbmc
+abc pdr
 
 [script]
 read -formal BlockRam.v bram_std_fifo.v formal_bram_std_fifo.v
