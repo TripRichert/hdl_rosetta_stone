@@ -1,0 +1,13 @@
+[options]
+mode prove
+
+[engines]
+abc pdr
+
+[script]
+read -formal axistream_unpack.v formal_axistream_unpack.v
+prep -top formal_axistream_unpack
+
+[files]
+axistream_unpack.v
+formal_axistream_unpack.v
