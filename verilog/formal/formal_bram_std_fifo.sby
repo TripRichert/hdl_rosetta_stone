@@ -5,10 +5,10 @@ mode prove
 abc pdr
 
 [script]
-read -formal BlockRam.v bram_std_fifo.v formal_bram_std_fifo.v
+read -formal blockram.v bram_std_fifo.v formal_bram_std_fifo.v
 prep -top formal_bram_std_fifo
 
 [files]
-BlockRam.v
+blockram.v
 bram_std_fifo.v
 formal_bram_std_fifo.v

@@ -46,7 +46,7 @@ architecture behavioral of bram_std_fifo is
 begin
   data_cnt <= cnt;
 
-  br : entity work.BlockRam
+  br : entity work.blockram
     generic map (
       data_width => data_width,
       addr_width => addr_width

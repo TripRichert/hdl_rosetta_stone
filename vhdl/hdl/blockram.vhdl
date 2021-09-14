@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity BlockRam is
+entity blockram is
   generic (
     data_width : natural := 32;
     addr_width : natural := 10
@@ -16,9 +16,9 @@ entity BlockRam is
     data_out   : out std_ulogic_vector(data_width - 1 downto 0)
     );
 
-end entity BlockRam;
+end entity blockram;
 
-architecture behavioral of BlockRam is
+architecture behavioral of blockram is
   type mem_type is array (2**addr_width - 1 downto 0)
     of std_ulogic_vector (data_width-1 downto 0);
   

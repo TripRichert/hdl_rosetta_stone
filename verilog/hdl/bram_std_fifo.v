@@ -70,7 +70,7 @@ module bram_std_fifo
       end 
    end // always @ (posedge clk)
 
-   BlockRam #(
+   blockram #(
       .DATA_WIDTH(DATA_WIDTH), 
       .ADDR_WIDTH(ADDR_WIDTH)
     ) br (

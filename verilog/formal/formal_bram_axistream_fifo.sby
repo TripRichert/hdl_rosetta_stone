@@ -5,11 +5,11 @@ mode prove
 abc pdr
 
 [script]
-read -formal BlockRam.v bram_std_fifo.v bram_axistream_fifo.v formal_bram_axistream_fifo.v
+read -formal blockram.v bram_std_fifo.v bram_axistream_fifo.v formal_bram_axistream_fifo.v
 prep -top formal_bram_axistream_fifo
 
 [files]
-BlockRam.v
+blockram.v
 bram_std_fifo.v
 bram_axistream_fifo.v
 formal_bram_axistream_fifo.v
