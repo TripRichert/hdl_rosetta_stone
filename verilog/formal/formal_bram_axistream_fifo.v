@@ -3,6 +3,7 @@ localparam ADDR_WIDTH = 3;
 
 module formal_bram_axistream_fifo
   (
+   clk,
    rst,
 
    src_tvalid,
@@ -18,7 +19,7 @@ module formal_bram_axistream_fifo
    data_cnt
    );
    
-
+   input clk;
    input rst;
    input src_tvalid;
    output src_tready;
@@ -33,7 +34,6 @@ module formal_bram_axistream_fifo
    
 
 
-   reg                       clk;
    reg                       init_1z;
 
    reg [(DATA_WIDTH):0]    data [2**ADDR_WIDTH:0];
@@ -110,15 +110,10 @@ module formal_bram_axistream_fifo
       end
       assert(index >= 0);
       assert(index <= 2**ADDR_WIDTH + 1);
-      assert((dest_tvalid && dest_tready && !rst && dest_tdata == data[0]) || !(dest_tvalid && dest_tready && !rst));
+      assert(!(rst && dest_tvalid && init_1z));
+      assert(!(dest_tvalid && dest_tready) || dest_tdata == data[0]);
+      
       
    end
-   
-   initial begin
-     clk = 0;
-   end
-  
-   always
-     #5 clk = !clk;
-   
+      
 endmodule

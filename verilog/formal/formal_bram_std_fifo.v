@@ -3,6 +3,7 @@ localparam ADDR_WIDTH = 3;
 
 module formal_bram_std_fifo
   (
+   clk,
    rst,
 
    src_data,
@@ -15,6 +16,7 @@ module formal_bram_std_fifo
    );
    
 
+   input clk;
    input rst;
    input [(DATA_WIDTH-1):0] src_data;
    input wr_en;
@@ -24,7 +26,6 @@ module formal_bram_std_fifo
    output                    empty;
 
 
-   reg                       clk;
    reg                       init_1z;
    reg                       was_full;
 
@@ -74,16 +75,16 @@ module formal_bram_std_fifo
       //make sure we can get full twice
       cover(full && !$past(full) && $past(full,2));
       //assume no one is writing when we're full
-      assume((wr_en && !full) || !wr_en);
+      assume(!full || !wr_en);
       //asume no one is reading when we're empty
-      assume((rd_en && !empty) || !rd_en);
+      assume(!empty || !rd_en);
       //assume no one is writing or reading when we're reset
-      assume((rst && !wr_en && !rd_en) | !rst);
+      assume((!wr_en && !rd_en) || !rst);
 
       //assert that empty after reset
-      assert((rst_1z && !rst && empty) || !(rst_1z && !rst));
+      assert(empty || !rst_1z);
       //check to see if fifo is working
-      assert(rd_en_1z && data0_1z == dest_data || !rd_en_1z);
+      assert(rst || rst_1z || !rd_en_1z || data0_1z == dest_data);
 
       //make sure we progress
       assume(rst || rd_en || wr_en || !init_1z || $past(rst || rd_en || wr_en) || $past(rst || rd_en || wr_en, 2) || $past(rst || rd_en || wr_en, 3) || $past(rst || rd_en || wr_en, 4));
@@ -120,12 +121,5 @@ module formal_bram_std_fifo
       assert(index >= 0);
       assert(index <= 2**ADDR_WIDTH);
    end
-   
-   initial begin
-     clk = 0;
-   end
-  
-   always
-     #5 clk = !clk;
    
 endmodule
