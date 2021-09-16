@@ -96,6 +96,7 @@ module axistream_unpack
 	 inv_cnt <= (inv_cnt == 0) ? NUM_PACK - 1 : inv_cnt - 1;
       end else begin 
 	 cnt <= cnt;
+	 inv_cnt <= inv_cnt;
       end
       
       if (rst) begin
