@@ -8,27 +8,31 @@ entity blockram is
     addr_width : natural := 10
     );
   port (
-    clk        :  in std_ulogic;
-    data_in    :  in std_ulogic_vector(data_width - 1 downto 0);
-    read_addr  :  in unsigned(addr_width - 1 downto 0);
-    write_addr :  in unsigned(addr_width - 1 downto 0);
-    wr_en      :  in std_ulogic;
-    data_out   : out std_ulogic_vector(data_width - 1 downto 0)
+    clk   :  in std_ulogic;
+    dia   :  in std_ulogic_vector(data_width - 1 downto 0);
+    addrb :  in unsigned(addr_width - 1 downto 0);
+    addra :  in unsigned(addr_width - 1 downto 0);
+    ena   :  in std_ulogic;
+    wea   :  in std_ulogic;
+    enb   :  in std_ulogic;
+    dob   : out std_ulogic_vector(data_width - 1 downto 0)
     );
 
 end entity blockram;
 
 architecture behavioral of blockram is
   type mem_type is array (2**addr_width - 1 downto 0)
-    of std_ulogic_vector (data_width-1 downto 0);
+    of std_ulogic_vector (data_width - 1 downto 0);
   
   signal mem: mem_type;
 begin
   process(clk)
   begin
     if rising_edge(clk) then
-      if (wr_en = '1') then
-        mem(to_integer(write_addr)) <= data_in;
+      if (ena = '1') then
+        if (wea = '1') then
+          mem(to_integer(addra)) <= dia;
+        end if;
       end if;
     end if;
   end process;
@@ -36,7 +40,9 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      data_out <= mem(to_integer(read_addr));
+      if enb = '1' then
+        dob <= mem(to_integer(addrb));
+      end if;
     end if;
   end process;
   

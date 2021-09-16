@@ -1,27 +1,33 @@
+
 module blockram
 
   #(parameter DATA_WIDTH=32,
     parameter ADDR_WIDTH=10)
     (
-     input 		       clk,
-     input [(DATA_WIDTH-1):0]  data_in,
-     input [(ADDR_WIDTH-1):0]  read_addr,
-     input [(ADDR_WIDTH-1):0]  write_addr,
-     input 		       wr_en,
-     output reg [(DATA_WIDTH-1):0] data_out
+     input 			   clk,
+     input [(DATA_WIDTH-1):0] 	   dia,
+     input [(ADDR_WIDTH-1):0] 	   addra,
+     input [(ADDR_WIDTH-1):0] 	   addrb,
+     input                         ena,
+     input 			   wea,
+     input 			   enb,
+     output reg [(DATA_WIDTH-1):0] dob
      );
 
    (* ram_style = "block" *) reg [DATA_WIDTH-1:0] ram[2**ADDR_WIDTH-1:0];
    
-   always @ (posedge clk) begin
-      
-      if (wr_en) begin
-       ram[write_addr] <= data_in;
+   always @ (posedge clk) begin     
+     if (ena) begin 
+	if (wea) begin
+	   ram[addra] <= dia;
+	end
      end
    end
   
    always @ (posedge clk) begin
-       data_out <= ram[read_addr];
+      if (enb) begin
+	 dob <= ram[addrb];
+      end
    end
 
 endmodule

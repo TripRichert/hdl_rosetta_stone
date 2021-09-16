@@ -52,12 +52,14 @@ begin
       addr_width => addr_width
       )
     port map (
-      clk => clk,
-      wr_en => wr_en_internal,
-      read_addr => rd_ptr,
-      write_addr => wr_ptr,
-      data_in    => src_data,
-      data_out   => dest_data
+      clk   => clk,
+      wea   => wr_en_internal,
+      ena   => wr_en_internal,
+      enb   => rd_en,
+      addrb => rd_ptr,
+      addra => wr_ptr,
+      dia   => src_data,
+      dob   => dest_data
       );
   
   can_write  <= '1' when rd_ptr /= wr_ptr or full_plausible = '0' else '0';

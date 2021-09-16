@@ -75,11 +75,13 @@ module bram_std_fifo
       .ADDR_WIDTH(ADDR_WIDTH)
     ) br (
       .clk(clk),
-      .data_in(src_data),
-      .read_addr(rd_ptr),
-      .write_addr(wr_ptr),
-      .wr_en(wr_en_internal),
-      .data_out(dest_data)
+      .dia(src_data),//data_input
+      .addrb(rd_ptr),//read_addr
+      .addra(wr_ptr),//write_addr
+      .ena(wr_en_internal),//wr_en
+      .wea(wr_en_internal),//wr_en
+      .enb(rd_en),//rd_en
+      .dob(dest_data)//data_output
       );
    
 endmodule
