@@ -68,56 +68,59 @@ module axistream_pack
    end
    
    always @(posedge clk) begin
+      //rst overrides cnt and tlast_align_err
+      
+      if (src_tvalid && src_tready) begin
+	 if (!BIG_ENDIAN) begin
+	       
+	    data_buf[((NUM_PACK-1)*DATA_WIDTH)-1:0] 
+	      <= data_buf[NUM_PACK*DATA_WIDTH-1:DATA_WIDTH];
+	       
+	    data_buf[NUM_PACK*DATA_WIDTH-1:(NUM_PACK-1)*DATA_WIDTH] 
+	      <= src_tdata;
+	       
+	    tlast_buf[NUM_PACK-2:0] <= tlast_buf[NUM_PACK-1:1];
+	    tlast_buf[NUM_PACK-1] <= src_tlast;
+	       
+	 end else begin 
+	       
+	    data_buf[NUM_PACK*DATA_WIDTH-1:DATA_WIDTH] 
+	      <= data_buf[((NUM_PACK-1)*DATA_WIDTH)-1:0];
+       
+	    data_buf[DATA_WIDTH - 1 : 0] <= src_tdata;
 
+	    tlast_buf[NUM_PACK-1:0] <= tlast_buf[NUM_PACK-2:1];
+	    tlast_buf[0] <= src_tlast;
+	       
+	 end
+      end else begin
+	 data_buf <= data_buf;
+	 tlast_buf <= tlast_buf;
+      end
+	 
+      if (src_tvalid && src_tready && dest_tvalid && dest_tready) begin
+	 cnt <= 1;	    
+      end else if (dest_tvalid && dest_tready) begin
+	 cnt <= 0;
+      end else if (src_tvalid && src_tready) begin
+	 cnt <= cnt + 1;
+      end else begin
+	 cnt <= cnt;
+      end
+
+      if (dest_tvalid && dest_tready) begin
+	 if (!BIG_ENDIAN) begin
+	    tlast_align_err <= (|tlast_buf[NUM_PACK-2:0])?1'b1:1'b0;
+	 end else begin
+	    tlast_align_err <= (|tlast_buf[NUM_PACK-1:1])?1'b1:1'b0;
+	 end
+      end else begin
+	 tlast_align_err <= 1'b0;
+      end
+	 
       if (rst) begin
 	 cnt <= 0;
 	 tlast_align_err <= 1'b0;
-	 
-      end else begin
-	 
-	 if (src_tvalid && src_tready) begin
-	    if (!BIG_ENDIAN) begin
-	       
-	       data_buf[((NUM_PACK-1)*DATA_WIDTH)-1:0] 
-		 <= data_buf[NUM_PACK*DATA_WIDTH-1:DATA_WIDTH];
-	       
-	       data_buf[NUM_PACK*DATA_WIDTH-1:(NUM_PACK-1)*DATA_WIDTH] 
-		 <= src_tdata;
-	       
-	       tlast_buf[NUM_PACK-2:0] <= tlast_buf[NUM_PACK-1:1];
-	       tlast_buf[NUM_PACK-1] <= src_tlast;
-	       
-	    end else begin 
-	       
-	      data_buf[NUM_PACK*DATA_WIDTH-1:DATA_WIDTH] 
-		<= data_buf[((NUM_PACK-1)*DATA_WIDTH)-1:0];
-       
-	       data_buf[DATA_WIDTH - 1 : 0] <= src_tdata;
-
-	       tlast_buf[NUM_PACK-1:0] <= tlast_buf[NUM_PACK-2:1];
-	       tlast_buf[0] <= src_tlast;
-	       
-	    end
-	 end // move data
-	 
-	 if (src_tvalid && src_tready && dest_tvalid && dest_tready) begin
-	    cnt <= 1;	    
-	 end else if (dest_tvalid && dest_tready) begin
-	    cnt <= 0;
-	 end else if (src_tvalid && src_tready) begin
-	    cnt <= cnt + 1;
-	 end else begin
-	    cnt <= cnt;
-	 end
-
-	 if (dest_tvalid && dest_tready) begin
-	    if (!BIG_ENDIAN) begin
-	       tlast_align_err <= (|tlast_buf[NUM_PACK-2:0])?1'b1:1'b0;
-	    end else begin
-	       tlast_align_err <= (|tlast_buf[NUM_PACK-1:1])?1'b1:1'b0;
-	    end
-	 end
-	 
       end
    end 
    
