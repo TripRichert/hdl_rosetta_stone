@@ -1,5 +1,16 @@
-//tlast is not a control signal
-//
+/**
+ * @file axistream_pack
+ * @author Trip Richert
+ **/
+
+// license at bottom of file
+
+/**
+ * @interface axistream_pack
+ * @brief concatenates NUM_PACK elements from src_data and sends out dest
+ * @param src_tlast may only be raised on multiples of NUM_PACK of src 
+ **/
+
 module axistream_pack
   (
    clk,
@@ -8,19 +19,19 @@ module axistream_pack
    src_tvalid,
    src_tready,
    src_tdata,
-   src_tlast,
+   src_tlast, //! may only be raised on multiples of NUM_PACK of src
 
    dest_tvalid,
    dest_tready,
    dest_tdata,
    dest_tlast,
 
-   tlast_align_err
+   tlast_align_err //! src_tlast && src_tvalid at invalid time for src_tlast
    );
 
    parameter DATA_WIDTH = 8;
    parameter NUM_PACK = 4;
-   parameter BIG_ENDIAN = 1'b0;
+   parameter BIG_ENDIAN = 1'b0; //! most significant word comes first from src
    
 
    input                              clk;
@@ -107,7 +118,27 @@ module axistream_pack
 	    end
 	 end
 	 
-      end // else: !if(rst)
-   end // always @ (posedge clk)
+      end
+   end 
    
-endmodule // axistream_pack
+endmodule
+
+// Copyright 2021 Trip Richert
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), 
+// to deal in the Software without restriction, including without limitation 
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+// and/or sell copies of the Software, and to permit persons to whom the 
+// Software is furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+// THE SOFTWARE.
