@@ -1,7 +1,13 @@
+--! @file
+--! @author Trip Richert
+--! block ram meant to match xilinx UG901 simple_dual_one_clock block ram
+
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! @interface blockram dual port random access memory, meant to use block ram
 entity blockram is
   generic (
     data_width : natural := 32;
@@ -9,13 +15,13 @@ entity blockram is
     );
   port (
     clk   :  in std_ulogic;
-    dia   :  in std_ulogic_vector(data_width - 1 downto 0);
-    addrb :  in unsigned(addr_width - 1 downto 0);
-    addra :  in unsigned(addr_width - 1 downto 0);
-    ena   :  in std_ulogic;
-    wea   :  in std_ulogic;
-    enb   :  in std_ulogic;
-    dob   : out std_ulogic_vector(data_width - 1 downto 0)
+    dia   :  in std_ulogic_vector(data_width - 1 downto 0);--! data in
+    addrb :  in unsigned(addr_width - 1 downto 0);--! read address
+    addra :  in unsigned(addr_width - 1 downto 0);--! write address
+    ena   :  in std_ulogic;--! write enable (need to raise wea too)
+    wea   :  in std_ulogic;--! write enable
+    enb   :  in std_ulogic;--! read enable
+    dob   : out std_ulogic_vector(data_width - 1 downto 0)--! data output
     );
 
 end entity blockram;
@@ -47,3 +53,23 @@ begin
   end process;
   
 end architecture behavioral;
+
+-- Copyright 2021 Trip Richert
+
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), 
+-- to deal in the Software without restriction, including without limitation 
+-- the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+-- and/or sell copies of the Software, and to permit persons to whom the 
+-- Software is furnished to do so, subject to the following conditions:
+
+-- The above copyright notice and this permission notice shall be included in 
+-- all copies or substantial portions of the Software.
+
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+-- THE SOFTWARE.
