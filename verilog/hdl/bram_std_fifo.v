@@ -1,6 +1,16 @@
-//reads are not allowed when empty, even if there is a simultaneous write
-//writes are not allowed when full, even if there is a simultaneous read
+/**
+ * @file bram_std_fifo.v
+ * @author Trip Richert
+ **/
 
+/**
+ * @interface bram_std_fifo
+ * @brief dual port, single clock, block ram fifo.
+ * data is output one clock cycle after read enable
+ * data should be input at same time as write enable
+ * reads are not allowed when fifo is empty, even if there a simulaneous write
+ * writes are disallowed when fifo is full, even if there is a simultaneous read
+ **/
 module bram_std_fifo
 
   #(parameter DATA_WIDTH=32,
@@ -13,8 +23,8 @@ module bram_std_fifo
     input                     rd_en,
     output                    full,
     output                    empty,
-    output reg                wr_err_flr,
-    output reg                rd_err_flr,
+    output reg                wr_err_flr,//! raised on failed write for 1 clk
+    output reg                rd_err_flr,//! raised on failed read for 1 clk
     output [(ADDR_WIDTH):0]    data_cnt,
     output [(DATA_WIDTH-1):0] dest_data
     );
@@ -85,3 +95,23 @@ module bram_std_fifo
       );
    
 endmodule
+
+// Copyright 2021 Trip Richert
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), 
+// to deal in the Software without restriction, including without limitation 
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+// and/or sell copies of the Software, and to permit persons to whom the 
+// Software is furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+// THE SOFTWARE.
