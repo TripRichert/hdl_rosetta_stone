@@ -89,7 +89,7 @@ module axistream_pack
        
 	    data_buf[DATA_WIDTH - 1 : 0] <= src_tdata;
 
-	    tlast_buf[NUM_PACK-1:0] <= tlast_buf[NUM_PACK-2:1];
+	    tlast_buf[NUM_PACK-1:1] <= tlast_buf[NUM_PACK-2:0];
 	    tlast_buf[0] <= src_tlast;
 	       
 	 end
