@@ -1,0 +1,13 @@
+[options]
+mode prove
+
+[engines]
+abc pdr
+
+[script]
+read -formal axistream_improve_timepath.v formal_axistream_improve_timepath.v
+prep -top formal_axistream_improve_timepath 
+
+[files]
+axistream_improve_timepath.v
+formal_axistream_improve_timepath.v
