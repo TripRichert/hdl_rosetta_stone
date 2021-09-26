@@ -1,0 +1,18 @@
+[tasks]
+prove pf
+## cover cv
+
+[options]
+pf: mode prove
+## cv: mode cover
+
+[engines]
+pf: abc pdr
+## cv: smtbmc
+
+[script]
+{{"-formal"|gen_reads}}
+prep -top {{top_level}}
+
+[files]
+{{files}}
