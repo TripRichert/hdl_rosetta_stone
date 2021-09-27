@@ -43,8 +43,6 @@ module axistream_improve_timepath
    reg [1:0]  cnt;
    reg [1:0]   rd_ptr;
    
-   reg    src_tvalid_z;
-   reg    dest_tready_z;
    reg [DATA_WIDTH:0] data_buf [2:0];
 
    assign dest_tvalid = (cnt != 0)? !rst : 1'b0;
@@ -56,14 +54,10 @@ module axistream_improve_timepath
    assign rd_ptr = (cnt == 0)?0 : cnt - 1;
    
    initial begin
-      cnt <= 0;
-      src_tvalid_z <= 1'b0;
-      dest_tready_z <= 1'b0;
+      cnt = 0;
    end
 
    always @(posedge clk) begin
-      src_tvalid_z <= src_tvalid;
-      dest_tready_z <= dest_tready;
 
       if (src_tvalid && src_tready) begin
 	 data_buf[2] <= data_buf[1];
@@ -88,8 +82,6 @@ module axistream_improve_timepath
       end
       
       if (rst) begin
-	 src_tvalid_z <= 1'b0;
-	 dest_tready_z <= 1'b0;
 	 cnt <= 0;
       end
    end

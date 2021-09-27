@@ -63,8 +63,8 @@ module axistream_pack
    assign dest_tlast = (!BIG_ENDIAN)?tlast_buf[NUM_PACK-1]:tlast_buf[0];
 
    initial begin
-      cnt <= 0;
-      tlast_align_err <= 1'b0;
+      cnt = 0;
+      tlast_align_err = 1'b0;
    end
    
    always @(posedge clk) begin

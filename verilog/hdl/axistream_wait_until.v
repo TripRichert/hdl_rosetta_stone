@@ -48,11 +48,11 @@ module axistream_wait_until
    
    assign dest_tvalid = (sm == SM_GO) ? src_tvalid && !rst : 1'b0;
    assign src_tready  = (sm == SM_GO) ? dest_tready && !rst : 1'b0;
-   assign dest_tlast  = (sm == SM_GO) ? dest_tlast && dest_tvalid : 1'b0;
+   assign dest_tlast  = (sm == SM_GO) ? src_tlast && dest_tvalid: 1'b0;
    assign dest_tdata  = src_tdata;
 
    initial begin
-      sm <= SM_WAIT;
+      sm = SM_WAIT;
    end
 
    always @(posedge clk) begin

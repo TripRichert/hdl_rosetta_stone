@@ -60,8 +60,8 @@ module axistream_add_tlast
    assign dest_tdata = data_buf;
 
    initial begin
-      buffered <= 1'b0;
-      hold_tlast <= 1'b0;
+      buffered = 1'b0;
+      hold_tlast = 1'b0;
    end
    
    always @(posedge clk) begin

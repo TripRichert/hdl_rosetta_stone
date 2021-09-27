@@ -69,9 +69,9 @@ module axistream_unpack
    assign dest_tdata = (BIG_ENDIAN) ? data_arr[inv_cnt] : data_arr[cnt];
    
    initial begin
-      cnt <= 0;
-      inv_cnt <= NUM_PACK - 1;
-      is_nempty <= 1'b0;
+      cnt = 0;
+      inv_cnt = NUM_PACK - 1;
+      is_nempty = 1'b0;
    end
 
    always @(posedge clk) begin
