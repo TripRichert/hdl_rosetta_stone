@@ -1,103 +1,76 @@
 import os
-import sys
+import os.path
 
-import phonytask as pt
-import taskenv as te
-from edalize import *
+def cpy_file(outputdir, name, inputfile, substitution):
+    olddata = ""
+    if os.path.exists(outputdir):
+        filename = os.path.join(outputdir, name)
+        if os.path.isfile(filename):
+            with open(filename, 'r') as reader:
+                olddata = reader.read()
+    else:
+        os.mkdir(outputdir)
 
-work_root = 'build'
+    with open(inputfile, 'r') as reader:
+        rawdata = reader.read()
 
-class EdaToolBuildWrapper:
-    edatool = None
-    def __init__(self, edatool):
-        self.edatool = edatool
-    def run(self, name, output_dir):
-        self.edatool.build()
+    data = rawdata
+    for key in substitution:
+        mystr = '${' + key + '}'
+        data = data.replace(mystr, substitution[key])
 
-class EdaToolConfigWrapper:
-    edatool = None
-    def __init__(self, edatool):
-        self.edatool = edatool
-    def run(self, name, output_dir):
-        self.edatool.configure()
+    if data != olddata:
+        filename = os.path.join(outputdir, name)
+        with open(filename, 'w') as writer:
+            writer.write(data)
 
-class EdaToolRunWrapper:
-    edatool = None
-    def __init__(self, edatool):
-        self.edatool = edatool
-    def run(self, name, output_dir):
-        self.edatool.run()
+def prepare_cocotb_dir(outputdir, name, template_file, prjpath, source_files, simulator, language, pythonfile, topname):
+    corrected_source_files = []
+    if not prjpath:
+        prjpath = os.path.dirname(__file__)
+    for filename in source_files:
+        if os.path.isabs(filename):
+            corrected_source_files.append(filename)
+        else:
+            corrected_source_files.append(os.path.join(prjpath,filename))
 
-def create_edam_task(tool, edam, work_root):
-    print(edam)
-    backend = get_edatool(tool)(edam=edam, work_root=work_root)
-    os.makedirs(work_root)
-    configname = 'configure_' + edam['name']
-    config = pt.phonytask(name=configname, task=EdaToolConfigWrapper(backend), output_dir=work_root)
-    buildname = 'build_' + edam['name']
-    build = pt.phonytask(name=buildname, task=EdaToolBuildWrapper(backend), output_dir=work_root, dependencies = [configname])
-    runname = 'run_' + edam['name']
-    run = pt.phonytask(name=runname, task=EdaToolRunWrapper(backend), output_dir=work_root, dependencies = [buildname])
-    return [config, build, run]
+    source_files_string = ''
+    for filename in corrected_source_files:
+        source_files_string = source_files_string + filename + ' '
+    pyname = os.path.splitext(os.path.basename(pythonfile))[0]
+    vardict = {}
+    vardict['simulator'] = simulator
+    vardict['lang'] = language
+    vardict['source_files'] = source_files_string
+    vardict['LANG'] = language.upper()
+    vardict['pyname'] = pyname
+    vardict['topname'] = topname
 
-def adjust_paths(path_list, dest):
-    new_list = []
-    for i in path_list:
-        copy = i.copy()
-        copy['name'] = os.path.relpath(copy['name'], dest)
-        new_list.append(copy)
-    return new_list
+    if not os.path.exists(outputdir):
+        os.mkdir(outputdir)
 
+    cpy_file(os.path.join(outputdir, name), pyname + '.py', pythonfile, {})
+    cpy_file(os.path.join(outputdir, name), 'makefile', template_file, vardict)
 
-synthfiles = [
-    {'name' : os.path.join('verilog', 'hdl','blockram.v'),
-     'file_type' : 'verilogSource'},
-    {'name' : os.path.join('verilog', 'hdl','bram_std_fifo.v'),
-     'file_type' : 'verilogSource'}
-    ]
+mydir = os.path.dirname(os.path.realpath(__file__))
+source_files = [os.path.join('verilog', 'hdl', 'blockram.v'), os.path.join('verilog', 'hdl', 'bram_std_fifo.v')]
+prepare_cocotb_dir(outputdir = 'build',
+                   name='verilog_bram_std_fifo',
+                   template_file=os.path.join('templates', 'makefile.in'),
+                   prjpath=mydir,
+                   source_files=source_files,
+                   simulator='icarus',
+                   language='verilog',
+                   pythonfile=os.path.join('cocotb_tests', 'test_bram_std_fifo.py'),
+                   topname='bram_std_fifo')
 
-formalfiles = [
-    {'name' : os.path.join('verilog', 'formal','formal_bram_std_fifo.v'),
-     'file_type' : 'verilogSource'}
-    ]
-print(formalfiles)
-
-prove_template = [
-    {'name' : os.path.join('verilog', 'templates', 'prove_config.sby.j2'),
-     'file_type' : 'sbyConfigTemplate'}]
-cover_template = [
-    {'name' : os.path.join('verilog', 'templates', 'cover_config.sby.j2'),
-     'file_type' : 'sbyConfigTemplate'}]
-
-
-tool = 'symbiyosys'
-
-
-edam_prove = {
-    'files' : adjust_paths(prove_template + formalfiles + synthfiles,
-                           os.path.join(work_root, 'formal_prove_bram_std_fifo')),
-    'name'  : 'formal_prove_bram_std_fifo',
-    'tool_options' : {'tasknames':['prove']},
-    'toplevel' : 'formal_bram_std_fifo'
-    }
-print(formalfiles)
-
-edam_cover = {
-    'files' : adjust_paths(cover_template + formalfiles + synthfiles,
-                           os.path.join(work_root, 'formal_prove_bram_std_fifo')),
-    'name'  : 'formal_cover_bram_std_fifo',
-    'tool_options' : {'tasknames':['cover']},
-    'toplevel' : 'formal_bram_std_fifo'
-    }
-print(formalfiles)
-
-tasklist = create_edam_task(tool=tool, edam=edam_prove, work_root=os.path.join(work_root, edam_prove['name']))
-tasklist.extend(create_edam_task(tool=tool, edam=edam_cover, work_root=os.path.join(work_root, edam_cover['name'])))
-                            
-
-tasker = te.taskenv()
-for i in tasklist:
-    tasker.add_task(i)
-tasker.run_task('run_formal_prove_bram_std_fifo')
-tasker.run_task('run_formal_cover_bram_std_fifo')
-
+source_files = [os.path.join('vhdl', 'hdl', 'blockram.vhdl'), os.path.join('vhdl', 'hdl', 'bram_std_fifo.vhdl')]
+prepare_cocotb_dir(outputdir = 'build',
+                   name='vhdl_bram_std_fifo',
+                   template_file=os.path.join('templates', 'makefile.in'),
+                   prjpath=mydir,
+                   source_files=source_files,
+                   simulator='ghdl',
+                   language='vhdl',
+                   pythonfile=os.path.join('cocotb_tests', 'test_bram_std_fifo.py'),
+                   topname='bram_std_fifo')
